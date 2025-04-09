@@ -29,4 +29,22 @@ class AuthController extends Controller
 
 
     }
+
+    public function login(LoginRequest $request){
+        $user = User::where('email', $request->email)->first();
+
+        if(!$user || !Hash::check($request->password, $user->password)){
+            return response()->json([
+                "message"=>"invalid email or password",
+            ],401);
+        }
+
+        $token = $user->createToken($user->email)->plainTextToken;
+        return response()->json([
+            "user"=>new UserResource($user),
+            "token"=>$token,
+        ],200);
+
+    }
+
 }
